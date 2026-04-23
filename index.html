@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebCom — Web Serial Terminal</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@4.19.0/css/xterm.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <header id="toolbar">
+      <div id="tabs-bar">
+        <div id="tabs-list"></div>
+        <button id="btn-add-tab" class="btn-icon" title="Новий термінал (Ctrl+T)">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor" aria-hidden="true">
+            <path d="M6.5 0v6H.5v1h6v6h1V7h6V6h-6V0h-1z"/>
+          </svg>
+        </button>
+      </div>
+      <div id="toolbar-center">
+        <span class="app-title">Web<span class="app-title-com">COM</span></span>
+        <div class="toolbar-sep"></div>
+        <button id="btn-connect-port" class="btn-connect-port" title="Вибрати серійний порт через браузер (поточна вкладка)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+          Підключити порт
+        </button>
+      </div>
+      <div id="toolbar-right">
+        <button id="btn-mosaic" class="btn-icon" title="Мозаїчне розташування (Ctrl+Shift+M)" aria-pressed="false">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true">
+            <rect x="0" y="0" width="6" height="6" rx="1.2"/>
+            <rect x="8" y="0" width="6" height="6" rx="1.2"/>
+            <rect x="0" y="8" width="6" height="6" rx="1.2"/>
+            <rect x="8" y="8" width="6" height="6" rx="1.2"/>
+          </svg>
+        </button>
+        <div class="toolbar-sep"></div>
+        <select id="select-theme" class="toolbar-select" title="Кольорова тема терміналу"></select>
+        <select id="select-font-size" class="toolbar-select" title="Розмір шрифту">
+          <option value="11">11px</option>
+          <option value="12">12px</option>
+          <option value="13">13px</option>
+          <option value="14">14px</option>
+          <option value="16">16px</option>
+          <option value="18">18px</option>
+          <option value="20">20px</option>
+          <option value="24">24px</option>
+        </select>
+      </div>
+    </header>
+
+    <main id="terminals-container"></main>
+  </div>
+
+  <!-- Port Settings Modal -->
+  <div id="modal-settings" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-backdrop"></div>
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="modal-title">Налаштування порту</h2>
+        <button id="btn-close-modal" class="btn-icon btn-close-modal" aria-label="Закрити">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <line x1="1" y1="1" x2="10" y2="10"/><line x1="10" y1="1" x2="1" y2="10"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <label for="cfg-baud">Baud Rate</label>
+          <select id="cfg-baud" class="form-select">
+            <option value="300">300</option>
+            <option value="1200">1200</option>
+            <option value="2400">2400</option>
+            <option value="4800">4800</option>
+            <option value="9600">9600</option>
+            <option value="19200">19200</option>
+            <option value="38400">38400</option>
+            <option value="57600">57600</option>
+            <option value="115200" selected>115200</option>
+            <option value="230400">230400</option>
+            <option value="460800">460800</option>
+            <option value="921600">921600</option>
+            <option value="1000000">1000000</option>
+            <option value="2000000">2000000</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="cfg-databits">Біти даних</label>
+          <select id="cfg-databits" class="form-select">
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8" selected>8</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="cfg-parity">Парність</label>
+          <select id="cfg-parity" class="form-select">
+            <option value="none" selected>Немає (None)</option>
+            <option value="even">Парна (Even)</option>
+            <option value="odd">Непарна (Odd)</option>
+            <option value="mark">Mark</option>
+            <option value="space">Space</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="cfg-stopbits">Стоп-біти</label>
+          <select id="cfg-stopbits" class="form-select">
+            <option value="1" selected>1</option>
+            <option value="1.5">1.5</option>
+            <option value="2">2</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="cfg-flow">Управління потоком</label>
+          <select id="cfg-flow" class="form-select">
+            <option value="none" selected>Немає</option>
+            <option value="hardware">Апаратне (RTS/CTS)</option>
+          </select>
+        </div>
+        <hr class="form-sep">
+        <div class="form-row">
+          <label for="cfg-device-name">Назва пристрою</label>
+          <input type="text" id="cfg-device-name" class="form-input"
+                 placeholder="напр. tty.usbserial-FAKE"
+                 title="Власна назва для вкладки. Якщо порт не визначився — введіть вручну (необов'язково)">
+        </div>
+        <p class="form-hint">Необов'язково — замінює автоматично визначену назву</p>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-port-connect" class="btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+          Вибрати порт та підключити
+        </button>
+        <button id="btn-port-cancel" class="btn-secondary">Скасувати</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Browser not supported overlay -->
+  <div id="no-serial-api" style="display:none" class="overlay-message">
+    <div class="overlay-box">
+      <svg class="overlay-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <h2>Web Serial API не підтримується</h2>
+      <p>Для роботи з серійними портами потрібен браузер з підтримкою Web Serial API.</p>
+      <p class="compat-browsers">
+        <strong>Google Chrome 89+</strong> &nbsp;або&nbsp; <strong>Microsoft Edge 89+</strong>
+      </p>
+      <p class="compat-note">Safari та Firefox наразі не підтримують Web Serial API.</p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/xterm@4.19.0/lib/xterm.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.5.0/lib/xterm-addon-fit.js"></script>
+  <script src="js/themes.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -8,6 +8,7 @@ const DEFAULTS = {
   flowControl: 'none',
   theme:       'default-dark',
   fontSize:    14,
+  lang:        '',
 };
 
 class Settings {

@@ -136,13 +136,14 @@ class TerminalTab {
     const tile = document.createElement('div');
     tile.className = 'terminal-tile';
     tile.dataset.id = this.id;
+    const t = k => this.app.i18n.t(k);
     tile.innerHTML = `
       <div class="tile-header">
         <span class="tile-status-dot disconnected"></span>
-        <span class="tile-port-name">Не підключено</span>
+        <span class="tile-port-name">${t('tile.disconnected')}</span>
         <div class="tile-actions">
-          <button class="tile-btn tile-btn-connect" title="Вибрати порт та підключити">Підключити</button>
-          <button class="tile-btn tile-btn-disconnect" title="Відключитись" style="display:none">Відключити</button>
+          <button class="tile-btn tile-btn-connect" title="Вибрати порт та підключити">${t('tile.connect')}</button>
+          <button class="tile-btn tile-btn-disconnect" title="Відключитись" style="display:none">${t('tile.disconnect')}</button>
           <button class="tile-btn-icon tile-btn-settings" title="Налаштування порту">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="3"/>
@@ -216,11 +217,12 @@ class TerminalTab {
     const input = document.createElement('input');
     input.type = 'text';
     input.className = 'esc-custom-input';
-    input.placeholder = 'Довільна послідовність: \\x1b[31m або \\e[2J …';
+    const te = k => this.app.i18n.t(k);
+    input.placeholder = te('tile.escPlaceholder');
     input.title = 'Підтримується: \\xNN, \\e (ESC), \\r, \\n, \\t, \\0';
     const sendBtn = document.createElement('button');
     sendBtn.className = 'esc-send-btn';
-    sendBtn.textContent = 'Відправити';
+    sendBtn.textContent = te('tile.escSend');
     sendBtn.addEventListener('click', () => {
       const parsed = parseEscInput(input.value);
       if (parsed) this.sendData(parsed);
@@ -268,14 +270,15 @@ class TerminalTab {
   }
 
   _showWelcome() {
+    const t = k => this.app.i18n.t(k);
     const l = '\x1b[2m';
     const r = '\x1b[0m';
     const a = '\x1b[36m';
     this.term.writeln(`${a}╔══════════════════════════════════════╗${r}`);
-    this.term.writeln(`${a}║${r}   WebCom — Web Serial Terminal ${a}     ║${r}`);
+    this.term.writeln(`${a}║${r}   ${t('term.welcome1')} ${a}     ║${r}`);
     this.term.writeln(`${a}╚══════════════════════════════════════╝${r}`);
-    this.term.writeln(`${l}Натисніть [Підключити] щоб вибрати порт.${r}`);
-    this.term.writeln(`${l}Web Serial API працює лише через HTTPS або localhost.${r}`);
+    this.term.writeln(`${l}${t('term.welcome2')}${r}`);
+    this.term.writeln(`${l}${t('term.welcome3')}${r}`);
     this.term.writeln('');
   }
 
@@ -292,7 +295,8 @@ class TerminalTab {
 
       this._setStatus('connected');
       this._updateHeader();
-      this.term.writeln(`\x1b[32m✓ Підключено (${config.baudRate} baud ${config.dataBits}${config.parity[0].toUpperCase()}${config.stopBits})\x1b[0m`);
+      const t = k => this.app.i18n.t(k);
+      this.term.writeln(`\x1b[32m${t('term.connected')} (${config.baudRate} baud ${config.dataBits}${config.parity[0].toUpperCase()}${config.stopBits})\x1b[0m`);
       this.term.focus();
 
       // Wire disconnect event (USB unplug etc.)
@@ -301,10 +305,11 @@ class TerminalTab {
       this._readLoopRunning = true;
       this._readLoopDone = this._readLoop();
     } catch (err) {
+      const te = k => this.app.i18n.t(k);
       if (err.name === 'NotFoundError') {
-        this.term.writeln('\x1b[33m⚠ Вибір порту скасовано.\x1b[0m');
+        this.term.writeln(`\x1b[33m${te('term.cancelled')}\x1b[0m`);
       } else {
-        this.term.writeln(`\x1b[31m✗ Помилка підключення: ${err.message}\x1b[0m`);
+        this.term.writeln(`\x1b[31m${te('term.errorConnect')}${err.message}\x1b[0m`);
       }
       this._setStatus('disconnected');
       this._updateHeader();
@@ -322,7 +327,7 @@ class TerminalTab {
       }
     } catch (err) {
       if (this.connected) {
-        this.term.writeln(`\x1b[31m\r\n✗ Помилка читання: ${err.message}\x1b[0m`);
+        this.term.writeln(`\x1b[31m\r\n${this.app.i18n.t('term.errorRead')}${err.message}\x1b[0m`);
       }
     } finally {
       try { reader.releaseLock(); } catch { /* ignore */ }
@@ -339,7 +344,7 @@ class TerminalTab {
     // UI оновлюється одразу — до будь-яких async-операцій
     this._setStatus('disconnected');
     this._updateHeader();
-    this.term.writeln('\r\n\x1b[33m● Відключено\x1b[0m');
+    this.term.writeln(`\r\n\x1b[33m${this.app.i18n.t('term.disconnected')}\x1b[0m`);
 
     // Сигналізуємо reader зупинитись (fire-and-forget — не чекаємо завершення)
     this.reader?.cancel().catch(() => {});
@@ -369,7 +374,7 @@ class TerminalTab {
     if (!this.connected) return;
     this.connected = false;
     this._readLoopRunning = false;
-    this.term.writeln('\r\n\x1b[31m✗ Пристрій відключено!\x1b[0m');
+    this.term.writeln(`\r\n\x1b[31m${this.app.i18n.t('term.deviceUnplugged')}\x1b[0m`);
     this._setStatus('error');
     this._updateHeader();
   }
@@ -379,7 +384,7 @@ class TerminalTab {
     try {
       await this.writer.write(new TextEncoder().encode(data));
     } catch (err) {
-      this.term.writeln(`\r\n\x1b[31m✗ Помилка запису: ${err.message}\x1b[0m`);
+      this.term.writeln(`\r\n\x1b[31m${this.app.i18n.t('term.errorWrite')}${err.message}\x1b[0m`);
     }
   }
 
@@ -395,6 +400,7 @@ class TerminalTab {
   }
 
   _updateHeader() {
+    const t    = k => this.app.i18n.t(k);
     const btnC  = this.tileEl.querySelector('.tile-btn-connect');
     const btnD  = this.tileEl.querySelector('.tile-btn-disconnect');
     const label = this.tileEl.querySelector('.tile-port-name');
@@ -403,18 +409,31 @@ class TerminalTab {
     if (this.connected) {
       btnC.style.display = 'none';
       btnD.style.display = '';
-      label.textContent  = this.portName ?? 'Підключено';
+      label.textContent  = this.portName ?? t('tile.disconnected');
       tabLbl.textContent = this.portName ?? `T${this.id}`;
       this._setStatus('connected');
     } else {
       btnC.style.display = '';
       btnD.style.display = 'none';
-      label.textContent  = 'Не підключено';
-      tabLbl.textContent = `Terminal ${this.id}`;
+      label.textContent  = t('tile.disconnected');
+      tabLbl.textContent = `${t('tab.label')} ${this.id}`;
       if (!this.tileEl.querySelector('.tile-status-dot.error')) {
         this._setStatus('disconnected');
       }
     }
+  }
+
+  refreshI18n() {
+    const t = k => this.app.i18n.t(k);
+    const btnC    = this.tileEl.querySelector('.tile-btn-connect');
+    const btnD    = this.tileEl.querySelector('.tile-btn-disconnect');
+    const sendBtn = this.tileEl.querySelector('.esc-send-btn');
+    const escInp  = this.tileEl.querySelector('.esc-custom-input');
+    if (btnC)    btnC.textContent    = t('tile.connect');
+    if (btnD)    btnD.textContent    = t('tile.disconnect');
+    if (sendBtn) sendBtn.textContent = t('tile.escSend');
+    if (escInp)  escInp.placeholder  = t('tile.escPlaceholder');
+    this._updateHeader();
   }
 
   toggleEscPanel() {
@@ -454,6 +473,7 @@ class TerminalTab {
 class App {
   constructor() {
     this.settings  = new Settings();
+    this.i18n      = new I18n(this.settings);
     this.tabs      = new Map();   // id -> TerminalTab
     this.nextId    = 1;
     this.activeId  = null;
@@ -468,6 +488,20 @@ class App {
     this._bindStaticUI();
     this._populateThemes();
     this._populateFontSize();
+    this._bindLangSwitcher();
+    this.i18n._applyToDOM();
+    this._syncLangButtons();
+    const INIT_FLAGS = {
+      uk: '<span class="fi fi-ua lang-flag"></span>',
+      en: '<span class="fi fi-gb lang-flag"></span>',
+      fr: '<span class="fi fi-fr lang-flag"></span>',
+      de: '<span class="fi fi-de lang-flag"></span>',
+      pl: '<span class="fi fi-pl lang-flag"></span>',
+      cs: '<span class="fi fi-cz lang-flag"></span>',
+      es: '<span class="fi fi-es lang-flag"></span>',
+      pt: '<span class="fi fi-pt lang-flag"></span>',
+    };
+    document.getElementById('btn-lang-current').innerHTML = INIT_FLAGS[this.i18n.lang] ?? '🌐';
     this.addTab();
     this._bindKeyboard();
     this.cmdPanel = new CmdPanel(this);
@@ -583,9 +617,10 @@ class App {
     document.getElementById('cfg-device-name').value = activeTab?.portName ?? '';
 
     const btn = document.getElementById('btn-port-connect');
+    const t = k => this.i18n.t(k);
     btn.innerHTML   = connectOnOpen
-      ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Підключити`
-      : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Зберегти`;
+      ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg> ${t('modal.btn.connect')}`
+      : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> ${t('modal.btn.save')}`;
 
     document.getElementById('modal-settings').classList.remove('hidden');
   }
@@ -682,6 +717,57 @@ class App {
         const ids = [...this.tabs.keys()];
         if (ids[idx] !== undefined) { e.preventDefault(); this.setActive(ids[idx]); }
       }
+    });
+  }
+
+  _bindLangSwitcher() {
+    const FLAGS = {
+      uk: '<span class="fi fi-ua lang-flag"></span>',
+      en: '<span class="fi fi-gb lang-flag"></span>',
+      fr: '<span class="fi fi-fr lang-flag"></span>',
+      de: '<span class="fi fi-de lang-flag"></span>',
+      pl: '<span class="fi fi-pl lang-flag"></span>',
+      cs: '<span class="fi fi-cz lang-flag"></span>',
+      es: '<span class="fi fi-es lang-flag"></span>',
+      pt: '<span class="fi fi-pt lang-flag"></span>',
+    };
+    const btn      = document.getElementById('btn-lang-current');
+    const dropdown = document.getElementById('lang-dropdown');
+
+    const open = () => {
+      dropdown.classList.remove('hidden');
+      btn.classList.add('open');
+      btn.setAttribute('aria-expanded', 'true');
+    };
+    const close = () => {
+      dropdown.classList.add('hidden');
+      btn.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    };
+
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      dropdown.classList.contains('hidden') ? open() : close();
+    });
+
+    document.querySelectorAll('.lang-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        this.i18n.setLang(opt.dataset.lang);
+        btn.innerHTML = FLAGS[opt.dataset.lang] ?? '🌐';
+        this._syncLangButtons();
+        this.tabs.forEach(t => t.refreshI18n());
+        close();
+      });
+    });
+
+    // Close on outside click
+    document.addEventListener('click', () => close());
+    dropdown.addEventListener('click', e => e.stopPropagation());
+  }
+
+  _syncLangButtons() {
+    document.querySelectorAll('.lang-option').forEach(opt => {
+      opt.classList.toggle('active', opt.dataset.lang === this.i18n.lang);
     });
   }
 

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WebCom — Web Serial Terminal</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@4.19.0/css/xterm.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -26,7 +27,7 @@
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
           </svg>
-          Підключити порт
+          <span data-i18n="toolbar.connect">Підключити порт</span>
         </button>
       </div>
       <div id="toolbar-right">
@@ -57,6 +58,22 @@
           <option value="20">20px</option>
           <option value="24">24px</option>
         </select>
+        <div class="toolbar-sep"></div>
+        <div id="lang-switcher" class="lang-switcher">
+          <button id="btn-lang-current" class="btn-lang-current" title="Мова інтерфейсу" aria-haspopup="listbox" aria-expanded="false">
+            <span class="fi fi-ua lang-flag"></span>
+          </button>
+          <div id="lang-dropdown" class="lang-dropdown hidden" role="listbox">
+            <button class="lang-option" data-lang="uk" role="option"><span class="fi fi-ua lang-flag"></span><span>Українська</span></button>
+            <button class="lang-option" data-lang="en" role="option"><span class="fi fi-gb lang-flag"></span><span>English</span></button>
+            <button class="lang-option" data-lang="fr" role="option"><span class="fi fi-fr lang-flag"></span><span>Français</span></button>
+            <button class="lang-option" data-lang="de" role="option"><span class="fi fi-de lang-flag"></span><span>Deutsch</span></button>
+            <button class="lang-option" data-lang="pl" role="option"><span class="fi fi-pl lang-flag"></span><span>Polski</span></button>
+            <button class="lang-option" data-lang="cs" role="option"><span class="fi fi-cz lang-flag"></span><span>Čeština</span></button>
+            <button class="lang-option" data-lang="es" role="option"><span class="fi fi-es lang-flag"></span><span>Español</span></button>
+            <button class="lang-option" data-lang="pt" role="option"><span class="fi fi-pt lang-flag"></span><span>Português</span></button>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -68,10 +85,10 @@
         <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
       </svg>
       <div class="linux-notice-body">
-        <p class="linux-notice-title">Linux: можливі проблеми з доступом до серійних портів</p>
-        <p>На деяких дистрибутивах Linux порти можуть не відображатись або бути недоступні, якщо поточний користувач не входить до групи <strong>dialout</strong>. Щоб надати доступ, виконайте в терміналі:</p>
+        <p class="linux-notice-title" data-i18n="linux.title">Linux: можливі проблеми з доступом до серійних портів</p>
+        <p data-i18n-html="linux.body">На деяких дистрибутивах Linux порти можуть не відображатись або бути недоступні, якщо поточний користувач не входить до групи <strong>dialout</strong>. Щоб надати доступ, виконайте в терміналі:</p>
         <code class="linux-notice-cmd">sudo usermod -a -G dialout $USER</code>
-        <p>Після цього потрібно <strong>вийти із сеансу та увійти знову</strong> (або перезавантажити систему). &nbsp;<a href="https://wiki.archlinux.org/title/Working_with_the_serial_console" target="_blank" rel="noopener noreferrer">Докладніше про роботу з серійними портами в Linux →</a></p>
+        <p data-i18n-html="linux.after">Після цього потрібно <strong>вийти із сеансу та увійти знову</strong> (або перезавантажити систему). &nbsp;<a href="https://wiki.archlinux.org/title/Working_with_the_serial_console" target="_blank" rel="noopener noreferrer" data-i18n="linux.link">Докладніше про роботу з серійними портами в Linux →</a></p>
       </div>
       <button id="btn-linux-notice-close" class="linux-notice-close" title="Закрити та не показувати знову" aria-label="Закрити">
         <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
@@ -91,12 +108,13 @@
           <div class="cmd-input-row">
             <span class="cmd-prompt">›</span>
             <input type="text" id="cmd-input" class="cmd-input"
+                   data-i18n-placeholder="cmd.placeholder"
                    placeholder="Команда… (help — список)" autocomplete="off" spellcheck="false">
-            <button id="cmd-run-btn" class="cmd-run-btn">Виконати</button>
+            <button id="cmd-run-btn" class="cmd-run-btn" data-i18n="cmd.runBtn">Виконати</button>
           </div>
         </div>
         <div class="cmd-panel-help">
-          <div class="cmd-help-header">Команди</div>
+          <div class="cmd-help-header" data-i18n="cmd.helpHeader">Команди</div>
           <div id="cmd-help-content" class="cmd-help-content"></div>
         </div>
       </div>
@@ -108,7 +126,7 @@
     <div class="modal-backdrop"></div>
     <div class="modal-box">
       <div class="modal-header">
-        <h2 id="modal-title">Налаштування порту</h2>
+        <h2 id="modal-title" data-i18n="modal.title">Налаштування порту</h2>
         <button id="btn-close-modal" class="btn-icon btn-close-modal" aria-label="Закрити">
           <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
             <line x1="1" y1="1" x2="10" y2="10"/><line x1="10" y1="1" x2="1" y2="10"/>
@@ -117,7 +135,7 @@
       </div>
       <div class="modal-body">
         <div class="form-row">
-          <label for="cfg-baud">Baud Rate</label>
+          <label for="cfg-baud" data-i18n="modal.baudRate">Baud Rate</label>
           <select id="cfg-baud" class="form-select">
             <option value="300">300</option>
             <option value="1200">1200</option>
@@ -136,7 +154,7 @@
           </select>
         </div>
         <div class="form-row">
-          <label for="cfg-databits">Біти даних</label>
+          <label for="cfg-databits" data-i18n="modal.dataBits">Біти даних</label>
           <select id="cfg-databits" class="form-select">
             <option value="5">5</option>
             <option value="6">6</option>
@@ -145,17 +163,17 @@
           </select>
         </div>
         <div class="form-row">
-          <label for="cfg-parity">Парність</label>
+          <label for="cfg-parity" data-i18n="modal.parity">Парність</label>
           <select id="cfg-parity" class="form-select">
-            <option value="none" selected>Немає (None)</option>
-            <option value="even">Парна (Even)</option>
-            <option value="odd">Непарна (Odd)</option>
+            <option value="none"  data-i18n="modal.parity.none">Немає (None)</option>
+            <option value="even"  data-i18n="modal.parity.even">Парна (Even)</option>
+            <option value="odd"   data-i18n="modal.parity.odd">Непарна (Odd)</option>
             <option value="mark">Mark</option>
             <option value="space">Space</option>
           </select>
         </div>
         <div class="form-row">
-          <label for="cfg-stopbits">Стоп-біти</label>
+          <label for="cfg-stopbits" data-i18n="modal.stopBits">Стоп-біти</label>
           <select id="cfg-stopbits" class="form-select">
             <option value="1" selected>1</option>
             <option value="1.5">1.5</option>
@@ -163,29 +181,30 @@
           </select>
         </div>
         <div class="form-row">
-          <label for="cfg-flow">Управління потоком</label>
+          <label for="cfg-flow" data-i18n="modal.flowControl">Управління потоком</label>
           <select id="cfg-flow" class="form-select">
-            <option value="none" selected>Немає</option>
-            <option value="hardware">Апаратне (RTS/CTS)</option>
+            <option value="none"     data-i18n="modal.flow.none">Немає</option>
+            <option value="hardware" data-i18n="modal.flow.hardware">Апаратне (RTS/CTS)</option>
           </select>
         </div>
         <hr class="form-sep">
         <div class="form-row">
-          <label for="cfg-device-name">Назва пристрою</label>
+          <label for="cfg-device-name" data-i18n="modal.deviceName">Назва пристрою</label>
           <input type="text" id="cfg-device-name" class="form-input"
+                 data-i18n-placeholder="modal.deviceName.placeholder"
                  placeholder="напр. tty.usbserial-FAKE"
                  title="Власна назва для вкладки. Якщо порт не визначився — введіть вручну (необов'язково)">
         </div>
-        <p class="form-hint">Необов'язково — замінює автоматично визначену назву</p>
+        <p class="form-hint" data-i18n="modal.deviceNameHint">Необов'язково — замінює автоматично визначену назву</p>
       </div>
       <div class="modal-footer">
         <button id="btn-port-connect" class="btn-primary">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
-          Вибрати порт та підключити
+          <span data-i18n="modal.btn.connect">Вибрати порт та підключити</span>
         </button>
-        <button id="btn-port-cancel" class="btn-secondary">Скасувати</button>
+        <button id="btn-port-cancel" class="btn-secondary" data-i18n="modal.btn.cancel">Скасувати</button>
       </div>
     </div>
   </div>
@@ -197,12 +216,12 @@
         <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
         <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
       </svg>
-      <h2>Web Serial API не підтримується</h2>
-      <p>Для роботи з серійними портами потрібен браузер з підтримкою Web Serial API.</p>
+      <h2 data-i18n="noSerial.title">Web Serial API не підтримується</h2>
+      <p data-i18n="noSerial.body">Для роботи з серійними портами потрібен браузер з підтримкою Web Serial API.</p>
       <p class="compat-browsers">
         <strong>Google Chrome 89+</strong> &nbsp;або&nbsp; <strong>Microsoft Edge 89+</strong>
       </p>
-      <p class="compat-note">Safari та Firefox наразі не підтримують Web Serial API.</p>
+      <p class="compat-note" data-i18n="noSerial.note">Safari та Firefox наразі не підтримують Web Serial API.</p>
     </div>
   </div>
 
@@ -210,6 +229,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.5.0/lib/xterm-addon-fit.js"></script>
   <script src="js/themes.js"></script>
   <script src="js/settings.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/cmdpanel.js"></script>
   <script src="js/app.js"></script>
 </body>

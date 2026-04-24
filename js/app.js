@@ -453,11 +453,12 @@ class TerminalTab {
 // ─── App ─────────────────────────────────────────────────────────────────────
 class App {
   constructor() {
-    this.settings = new Settings();
+    this.settings  = new Settings();
     this.tabs      = new Map();   // id -> TerminalTab
     this.nextId    = 1;
     this.activeId  = null;
     this.mosaic    = false;
+    this.cmdPanel  = null;
     this._pendingTabId    = null;
     this._pendingPort     = null; // SerialPort selected before settings modal
     this._connectOnOpen   = true;
@@ -469,12 +470,14 @@ class App {
     this._populateFontSize();
     this.addTab();
     this._bindKeyboard();
+    this.cmdPanel = new CmdPanel(this);
     window.addEventListener('resize', () => this._fitAll());
   }
 
   // ── Static UI wiring ──────────────────────────────────────────────────────
   _bindStaticUI() {
     document.getElementById('btn-add-tab').addEventListener('click', () => this.addTab());
+    document.getElementById('btn-cmd-panel').addEventListener('click', () => this.cmdPanel?.toggle());
     document.getElementById('btn-mosaic').addEventListener('click', () => this._toggleMosaic());
     document.getElementById('btn-connect-port').addEventListener('click', async () => {
       if (!this.activeId) return;
@@ -666,6 +669,7 @@ class App {
 
   _bindKeyboard() {
     document.addEventListener('keydown', e => {
+      if (e.ctrlKey && e.key === '`') { e.preventDefault(); this.cmdPanel?.toggle(); }
       if (e.ctrlKey && e.key === 't') { e.preventDefault(); this.addTab(); }
       if (e.ctrlKey && e.key === 'w') { e.preventDefault(); if (this.activeId) this.removeTab(this.activeId); }
       if (e.ctrlKey && e.shiftKey && e.key === 'M') { e.preventDefault(); this._toggleMosaic(); }
@@ -678,6 +682,13 @@ class App {
         if (ids[idx] !== undefined) { e.preventDefault(); this.setActive(ids[idx]); }
       }
     });
+  }
+
+  findTabByPort(port) {
+    for (const [, tab] of this.tabs) {
+      if (tab.port === port) return tab;
+    }
+    return null;
   }
 
   _cycleTab(dir) {

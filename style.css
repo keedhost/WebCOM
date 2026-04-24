@@ -698,6 +698,264 @@ body {
 /* ─── Selection ─── */
 ::selection { background: rgba(88, 166, 255, .25); }
 
+/* ─── Command Panel ─── */
+.cmd-panel {
+  position: relative;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  height: 33vh;
+  min-height: 80px;
+}
+.cmd-panel.hidden { display: none; }
+
+.cmd-resize-handle {
+  height: 5px;
+  background: transparent;
+  cursor: ns-resize;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background .15s;
+}
+.cmd-resize-handle:hover,
+.cmd-resize-handle.dragging { background: var(--accent-dim); }
+
+.cmd-panel-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.cmd-panel-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.cmd-output {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 10px;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.cmd-input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-top: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.cmd-prompt {
+  color: var(--accent);
+  font-family: monospace;
+  font-size: 15px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.cmd-input {
+  flex: 1;
+  height: 26px;
+  padding: 0 8px;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  outline: none;
+  transition: border-color .15s;
+}
+.cmd-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(88,166,255,.12); }
+.cmd-input::placeholder { color: var(--text-muted); font-family: inherit; }
+
+.cmd-run-btn {
+  height: 26px;
+  padding: 0 10px;
+  background: var(--accent-dim);
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background .1s;
+}
+.cmd-run-btn:hover { background: var(--accent); }
+
+.cmd-panel-help {
+  width: 272px;
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.cmd-help-header {
+  padding: 5px 10px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.cmd-help-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 8px;
+}
+
+.help-section { margin-bottom: 10px; }
+
+.help-section-title {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  margin-bottom: 4px;
+  padding: 0 2px;
+}
+
+.help-cmd {
+  margin-bottom: 5px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  background: var(--bg-elevated);
+}
+
+.help-cmd-name {
+  display: block;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 11px;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+
+.help-cmd-desc {
+  display: block;
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  margin-bottom: 3px;
+  line-height: 1.4;
+}
+
+.help-cmd-ex {
+  display: inline-block;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 10px;
+  color: var(--text-secondary);
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0 5px;
+  height: 18px;
+  line-height: 18px;
+  cursor: pointer;
+  margin: 1px 2px 1px 0;
+  transition: background .1s, border-color .1s, color .1s;
+}
+.help-cmd-ex:hover { background: var(--bg-hover); border-color: var(--accent); color: var(--text-primary); }
+
+/* Output lines */
+.cmd-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 1px 0;
+}
+
+.cmd-line-prompt {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  width: 12px;
+  text-align: right;
+  font-size: 12px;
+}
+.cmd-line-input .cmd-line-prompt { color: var(--accent); }
+
+.cmd-line-text {
+  flex: 1;
+  word-break: break-all;
+  white-space: pre-wrap;
+  color: var(--text-primary);
+}
+.cmd-line-info .cmd-line-text  { color: var(--text-secondary); }
+.cmd-line-err .cmd-line-text   { color: var(--red); }
+.cmd-line-warn .cmd-line-text  { color: var(--yellow); }
+.cmd-line-ok .cmd-line-text    { color: var(--green); }
+.cmd-line-head .cmd-line-text  { color: var(--accent); font-weight: 600; }
+.cmd-line-input .cmd-line-text { color: var(--text-primary); font-weight: 500; }
+
+/* Tables */
+.cmd-table {
+  border-collapse: collapse;
+  font-size: 11.5px;
+  margin: 2px 0;
+}
+.cmd-table th {
+  color: var(--text-muted);
+  font-weight: 600;
+  text-align: left;
+  padding: 2px 14px 2px 0;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.cmd-table td { padding: 2px 14px 2px 0; color: var(--text-primary); }
+.cmd-cell-name  { color: var(--accent)        !important; font-family: monospace; }
+.cmd-cell-busy  { color: var(--red)           !important; }
+.cmd-cell-free  { color: var(--green)         !important; }
+.cmd-cell-muted { color: var(--text-muted)    !important; }
+
+/* Notes */
+.cmd-note {
+  border-radius: 5px;
+  padding: 8px 10px;
+  margin: 4px 0;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+}
+.cmd-note-warn { border-color: rgba(210,153,34,.4); background: rgba(210,153,34,.08); }
+.cmd-note-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.cmd-note-icon { font-size: 14px; }
+.cmd-note-close {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); font-size: 16px; line-height: 1; padding: 0;
+}
+.cmd-note-close:hover { color: var(--text-primary); }
+.cmd-note-body p { font-size: 11.5px; color: var(--text-secondary); margin-bottom: 4px; line-height: 1.5; }
+.cmd-note-code {
+  display: block; font-family: monospace; font-size: 11.5px;
+  padding: 4px 8px; background: var(--bg-base); border-radius: 3px;
+  margin: 4px 0; color: var(--accent);
+}
+.cmd-note-link {
+  display: block; font-size: 11px; color: var(--accent);
+  text-decoration: none; margin-top: 4px;
+}
+.cmd-note-link:hover { text-decoration: underline; }
+
 /* ─── Theme: Solarized Light overrides for chrome ─── */
 body.theme-chrome-light {
   --bg-base:       #fdf6e3;

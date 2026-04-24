@@ -60,6 +60,26 @@
       </div>
     </header>
 
+    <!-- Linux dialout notice (shown only on Linux, dismissible) -->
+    <div id="linux-notice" class="linux-notice hidden" role="alert">
+      <svg class="linux-notice-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <div class="linux-notice-body">
+        <p class="linux-notice-title">Linux: можливі проблеми з доступом до серійних портів</p>
+        <p>На деяких дистрибутивах Linux порти можуть не відображатись або бути недоступні, якщо поточний користувач не входить до групи <strong>dialout</strong>. Щоб надати доступ, виконайте в терміналі:</p>
+        <code class="linux-notice-cmd">sudo usermod -a -G dialout $USER</code>
+        <p>Після цього потрібно <strong>вийти із сеансу та увійти знову</strong> (або перезавантажити систему). &nbsp;<a href="https://wiki.archlinux.org/title/Working_with_the_serial_console" target="_blank" rel="noopener noreferrer">Докладніше про роботу з серійними портами в Linux →</a></p>
+      </div>
+      <button id="btn-linux-notice-close" class="linux-notice-close" title="Закрити та не показувати знову" aria-label="Закрити">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <line x1="1" y1="1" x2="10" y2="10"/><line x1="10" y1="1" x2="1" y2="10"/>
+        </svg>
+      </button>
+    </div>
+
     <main id="terminals-container"></main>
 
     <!-- Command Panel -->

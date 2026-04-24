@@ -471,6 +471,7 @@ class App {
     this.addTab();
     this._bindKeyboard();
     this.cmdPanel = new CmdPanel(this);
+    this._showLinuxNotice();
     window.addEventListener('resize', () => this._fitAll());
   }
 
@@ -681,6 +682,22 @@ class App {
         const ids = [...this.tabs.keys()];
         if (ids[idx] !== undefined) { e.preventDefault(); this.setActive(ids[idx]); }
       }
+    });
+  }
+
+  _showLinuxNotice() {
+    const STORAGE_KEY = 'webcom_linux_dialout_dismissed';
+    const platform = navigator.userAgentData?.platform ?? navigator.platform ?? '';
+    if (!/linux/i.test(platform) || localStorage.getItem(STORAGE_KEY)) return;
+
+    const notice = document.getElementById('linux-notice');
+    notice.classList.remove('hidden');
+    this._fitAll();
+
+    document.getElementById('btn-linux-notice-close').addEventListener('click', () => {
+      localStorage.setItem(STORAGE_KEY, '1');
+      notice.classList.add('hidden');
+      this._fitAll();
     });
   }
 

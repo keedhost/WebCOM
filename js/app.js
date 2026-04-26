@@ -213,7 +213,7 @@ class TerminalTab {
     btnConnect.addEventListener('click', async () => {
       try {
         const port = await navigator.serial.requestPort();
-        this.app.openSettingsModal(this.id, true, port);
+        await this.app._connectOrConfigure(this.id, port);
       } catch (e) {
         if (e.name !== 'NotFoundError') {
           this.term?.writeln(`\x1b[31m✗ Помилка вибору порту: ${e.message}\x1b[0m`);
@@ -310,6 +310,7 @@ class TerminalTab {
   }
 
   _showWelcome() {
+    if (!this.app.settings.get('showWelcome')) return;
     const t   = k => this.app.i18n.t(k);
     const d   = '\x1b[2m';
     const r   = '\x1b[0m';
@@ -693,6 +694,7 @@ class App {
     };
     document.getElementById('btn-lang-current').innerHTML = INIT_FLAGS[this.i18n.lang] ?? '🌐';
     this.addTab();
+    this._bindPrefsModal();
     this._bindKeyboard();
     this.cmdPanel = new CmdPanel(this);
     this._showLinuxNotice();
@@ -708,7 +710,7 @@ class App {
       if (!this.activeId) return;
       try {
         const port = await navigator.serial.requestPort();
-        this.openSettingsModal(this.activeId, true, port);
+        await this._connectOrConfigure(this.activeId, port);
       } catch (e) {
         if (e.name !== 'NotFoundError') console.error('Web Serial:', e);
       }
@@ -727,7 +729,8 @@ class App {
     // Modal close
     document.getElementById('btn-close-modal').addEventListener('click',  () => this._closeModal());
     document.getElementById('btn-port-cancel').addEventListener('click',  () => this._closeModal());
-    document.querySelector('.modal-backdrop').addEventListener('click',   () => this._closeModal());
+    document.querySelector('#modal-settings .modal-backdrop').addEventListener('click', () => this._closeModal());
+    document.getElementById('btn-prefs').addEventListener('click', () => this._openPrefs());
 
     // Modal connect
     document.getElementById('btn-port-connect').addEventListener('click', () => this._handleConnect());
@@ -1018,6 +1021,143 @@ class App {
       const tab = this.tabs.get(tabId);
       if (tab) { tab.portName = customName; tab._updateHeader(); }
     }
+  }
+
+  // ── _connectOrConfigure ───────────────────────────────────────────────────
+  async _connectOrConfigure(tabId, port) {
+    if (this.settings.get('skipPortSettings')) {
+      const tab = this.tabs.get(tabId);
+      if (tab) await tab.connect(port, this.settings.portConfig());
+    } else {
+      this.openSettingsModal(tabId, true, port);
+    }
+  }
+
+  // ── Prefs modal ───────────────────────────────────────────────────────────
+  _bindPrefsModal() {
+    document.getElementById('btn-close-prefs').addEventListener('click', () => this._closePrefs());
+    document.getElementById('prefs-backdrop').addEventListener('click',  () => this._closePrefs());
+
+    document.getElementById('prefs-theme').addEventListener('change', e => {
+      this.settings.set('theme', e.target.value);
+      document.getElementById('select-theme').value = e.target.value;
+      this._applyTheme(e.target.value);
+    });
+
+    document.getElementById('prefs-font-size').addEventListener('change', e => {
+      const size = Number(e.target.value);
+      this.settings.set('fontSize', size);
+      document.getElementById('select-font-size').value = e.target.value;
+      this.tabs.forEach(t => t.setFontSize(size));
+    });
+
+    document.getElementById('prefs-show-welcome').addEventListener('change', e => {
+      this.settings.set('showWelcome', e.target.checked);
+    });
+
+    document.getElementById('prefs-skip-settings').addEventListener('change', e => {
+      this.settings.set('skipPortSettings', e.target.checked);
+    });
+
+    const portFields = ['prefs-baud','prefs-databits','prefs-parity','prefs-stopbits','prefs-flow'];
+    const portKeys   = ['baudRate',  'dataBits',      'parity',      'stopBits',      'flowControl'];
+    portFields.forEach((id, i) => {
+      document.getElementById(id).addEventListener('change', e => {
+        const v = portKeys[i] === 'baudRate' || portKeys[i] === 'dataBits' || portKeys[i] === 'stopBits'
+          ? Number(e.target.value) : e.target.value;
+        this.settings.set(portKeys[i], v);
+        // keep port settings modal in sync
+        const mirrorId = { 'prefs-baud':'cfg-baud','prefs-databits':'cfg-databits',
+          'prefs-parity':'cfg-parity','prefs-stopbits':'cfg-stopbits','prefs-flow':'cfg-flow' }[id];
+        if (mirrorId) document.getElementById(mirrorId).value = e.target.value;
+      });
+    });
+
+    document.getElementById('prefs-lang').addEventListener('change', e => {
+      const lang = e.target.value;
+      this.i18n.setLang(lang);
+      const FLAGS = { uk:'<span class="fi fi-ua lang-flag"></span>', en:'<span class="fi fi-gb lang-flag"></span>',
+        fr:'<span class="fi fi-fr lang-flag"></span>', de:'<span class="fi fi-de lang-flag"></span>',
+        pl:'<span class="fi fi-pl lang-flag"></span>', cs:'<span class="fi fi-cz lang-flag"></span>',
+        es:'<span class="fi fi-es lang-flag"></span>', pt:'<span class="fi fi-pt lang-flag"></span>' };
+      document.getElementById('btn-lang-current').innerHTML = FLAGS[lang] ?? '🌐';
+      this._syncLangButtons();
+      this.tabs.forEach(t => t.refreshI18n());
+    });
+
+    document.getElementById('prefs-export').addEventListener('click', () => this._exportSettings());
+    document.getElementById('prefs-import-file').addEventListener('change', e => {
+      if (e.target.files[0]) this._importSettings(e.target.files[0]);
+      e.target.value = '';
+    });
+
+  }
+
+  _openPrefs() {
+    const s = this.settings;
+
+    // Populate theme options lazily (only once)
+    const prefThemeSel = document.getElementById('prefs-theme');
+    if (prefThemeSel.options.length === 0) {
+      Object.entries(THEMES).forEach(([key, theme]) => {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = theme.name;
+        prefThemeSel.appendChild(opt);
+      });
+    }
+
+    prefThemeSel.value                                    = s.get('theme');
+    document.getElementById('prefs-font-size').value   = s.get('fontSize');
+    document.getElementById('prefs-show-welcome').checked  = s.get('showWelcome');
+    document.getElementById('prefs-skip-settings').checked = s.get('skipPortSettings');
+    document.getElementById('prefs-baud').value        = s.get('baudRate');
+    document.getElementById('prefs-databits').value    = s.get('dataBits');
+    document.getElementById('prefs-parity').value      = s.get('parity');
+    document.getElementById('prefs-stopbits').value    = s.get('stopBits');
+    document.getElementById('prefs-flow').value        = s.get('flowControl');
+    document.getElementById('prefs-lang').value        = this.i18n.lang;
+    document.getElementById('modal-prefs').classList.remove('hidden');
+  }
+
+  _closePrefs() {
+    document.getElementById('modal-prefs').classList.add('hidden');
+  }
+
+  _exportSettings() {
+    const payload = {
+      _info: {
+        app: 'WebCOM — Web Serial Terminal',
+        url: 'https://keedhost.github.io/WebCOM/',
+        source: 'https://github.com/keedhost/WebCOM',
+        description: 'WebCOM settings file. Import it via Settings → Data → Import.',
+        exported: new Date().toISOString(),
+      },
+      ...this.settings._d,
+    };
+    const json = JSON.stringify(payload, null, 2);
+    const a = Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(new Blob([json], { type: 'application/json' })),
+      download: 'webcom-settings.json',
+    });
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  _importSettings(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (typeof data !== 'object' || Array.isArray(data)) throw new Error();
+        const { _info, ...settings } = data;
+        this.settings.setMany(settings);
+        window.location.reload();
+      } catch {
+        alert('Invalid settings file');
+      }
+    };
+    reader.readAsText(file);
   }
 
   // ── Theme & font ──────────────────────────────────────────────────────────

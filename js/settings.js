@@ -1,14 +1,16 @@
 const KEY = 'webcom_v1';
 
 const DEFAULTS = {
-  baudRate:    115200,
-  dataBits:    8,
-  parity:      'none',
-  stopBits:    1,
-  flowControl: 'none',
-  theme:       'default-dark',
-  fontSize:    14,
-  lang:        '',
+  baudRate:        115200,
+  dataBits:        8,
+  parity:          'none',
+  stopBits:        1,
+  flowControl:     'none',
+  theme:           'default-dark',
+  fontSize:        14,
+  lang:            '',
+  showWelcome:     true,
+  skipPortSettings:false,
 };
 
 class Settings {
@@ -23,16 +25,27 @@ class Settings {
       if (cookie) {
         const val = decodeURIComponent(cookie.slice(KEY.length + 1));
         Object.assign(this._d, JSON.parse(val));
+        return;
       }
+    } catch { /* ignore */ }
+    try {
+      const ls = localStorage.getItem(KEY);
+      if (ls) Object.assign(this._d, JSON.parse(ls));
     } catch { /* ignore */ }
   }
 
   _save() {
-    const exp = new Date();
-    exp.setFullYear(exp.getFullYear() + 2);
-    document.cookie =
-      `${KEY}=${encodeURIComponent(JSON.stringify(this._d))}` +
-      `; expires=${exp.toUTCString()}; path=/; SameSite=Lax`;
+    const json = JSON.stringify(this._d);
+    try {
+      const exp = new Date();
+      exp.setFullYear(exp.getFullYear() + 2);
+      document.cookie =
+        `${KEY}=${encodeURIComponent(json)}` +
+        `; expires=${exp.toUTCString()}; path=/; SameSite=Lax`;
+    } catch { /* ignore */ }
+    try {
+      localStorage.setItem(KEY, json);
+    } catch { /* ignore */ }
   }
 
   get(key)        { return this._d[key] ?? DEFAULTS[key]; }

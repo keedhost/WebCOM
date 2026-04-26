@@ -75,6 +75,13 @@
             <button class="lang-option" data-lang="pt" role="option"><span class="fi fi-pt lang-flag"></span><span>Português</span></button>
           </div>
         </div>
+        <div class="toolbar-sep"></div>
+        <button id="btn-prefs" class="btn-icon" title="Налаштування" aria-label="Налаштування">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
       </div>
     </header>
 
@@ -223,6 +230,147 @@
         <strong>Google Chrome 89+</strong> &nbsp;або&nbsp; <strong>Microsoft Edge 89+</strong>
       </p>
       <p class="compat-note" data-i18n="noSerial.note">Safari та Firefox наразі не підтримують Web Serial API.</p>
+    </div>
+  </div>
+
+  <!-- App Settings Modal -->
+  <div id="modal-prefs" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="prefs-title">
+    <div class="modal-backdrop" id="prefs-backdrop"></div>
+    <div class="modal-box prefs-box">
+      <div class="modal-header">
+        <h2 id="prefs-title" data-i18n="settings.title">Налаштування</h2>
+        <button id="btn-close-prefs" class="btn-icon btn-close-modal" aria-label="Закрити">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <line x1="1" y1="1" x2="10" y2="10"/><line x1="10" y1="1" x2="1" y2="10"/>
+          </svg>
+        </button>
+      </div>
+      <div class="prefs-body">
+
+        <!-- Appearance -->
+        <div class="prefs-section">
+          <div class="prefs-section-title" data-i18n="settings.appearance">Зовнішній вигляд</div>
+          <div class="form-row">
+            <label for="prefs-theme" data-i18n="settings.theme">Тема</label>
+            <select id="prefs-theme" class="form-select"></select>
+          </div>
+          <div class="form-row">
+            <label for="prefs-font-size" data-i18n="settings.fontSize">Розмір шрифту</label>
+            <select id="prefs-font-size" class="form-select">
+              <option value="11">11px</option>
+              <option value="12">12px</option>
+              <option value="13">13px</option>
+              <option value="14">14px</option>
+              <option value="16">16px</option>
+              <option value="18">18px</option>
+              <option value="20">20px</option>
+              <option value="24">24px</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Terminal -->
+        <div class="prefs-section">
+          <div class="prefs-section-title" data-i18n="settings.terminal">Термінал</div>
+          <div class="form-row">
+            <label for="prefs-show-welcome" data-i18n="settings.showWelcome">Показувати вітальний екран</label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="prefs-show-welcome">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Connection -->
+        <div class="prefs-section">
+          <div class="prefs-section-title" data-i18n="settings.connection">З'єднання</div>
+          <div class="form-row">
+            <div class="prefs-label-stack">
+              <span data-i18n="settings.skipPortSettings">Пропускати діалог налаштувань</span>
+              <span class="form-hint" data-i18n="settings.skipPortSettings.hint">При підключенні застосовуватимуться збережені налаштування</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="prefs-skip-settings">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="prefs-section-subtitle" data-i18n="settings.defaultPort">Налаштування порту за замовчуванням</div>
+          <div class="form-row">
+            <label for="prefs-baud" data-i18n="modal.baudRate">Baud Rate</label>
+            <select id="prefs-baud" class="form-select">
+              <option value="300">300</option><option value="1200">1200</option>
+              <option value="2400">2400</option><option value="4800">4800</option>
+              <option value="9600">9600</option><option value="19200">19200</option>
+              <option value="38400">38400</option><option value="57600">57600</option>
+              <option value="115200" selected>115200</option>
+              <option value="230400">230400</option><option value="460800">460800</option>
+              <option value="921600">921600</option><option value="1000000">1000000</option>
+              <option value="2000000">2000000</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="prefs-databits" data-i18n="modal.dataBits">Біти даних</label>
+            <select id="prefs-databits" class="form-select">
+              <option value="5">5</option><option value="6">6</option>
+              <option value="7">7</option><option value="8" selected>8</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="prefs-parity" data-i18n="modal.parity">Парність</label>
+            <select id="prefs-parity" class="form-select">
+              <option value="none"  data-i18n="modal.parity.none">Немає (None)</option>
+              <option value="even"  data-i18n="modal.parity.even">Парна (Even)</option>
+              <option value="odd"   data-i18n="modal.parity.odd">Непарна (Odd)</option>
+              <option value="mark">Mark</option><option value="space">Space</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="prefs-stopbits" data-i18n="modal.stopBits">Стоп-біти</label>
+            <select id="prefs-stopbits" class="form-select">
+              <option value="1" selected>1</option>
+              <option value="1.5">1.5</option><option value="2">2</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="prefs-flow" data-i18n="modal.flowControl">Управління потоком</label>
+            <select id="prefs-flow" class="form-select">
+              <option value="none"     data-i18n="modal.flow.none">Немає</option>
+              <option value="hardware" data-i18n="modal.flow.hardware">Апаратне (RTS/CTS)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Language -->
+        <div class="prefs-section">
+          <div class="prefs-section-title" data-i18n="settings.language">Мова</div>
+          <div class="form-row">
+            <select id="prefs-lang" class="form-select prefs-lang-select">
+              <option value="uk">🇺🇦 Українська</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="fr">🇫🇷 Français</option>
+              <option value="de">🇩🇪 Deutsch</option>
+              <option value="pl">🇵🇱 Polski</option>
+              <option value="cs">🇨🇿 Čeština</option>
+              <option value="es">🇪🇸 Español</option>
+              <option value="pt">🇵🇹 Português</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Data -->
+        <div class="prefs-section prefs-section-last">
+          <div class="prefs-section-title" data-i18n="settings.data">Дані</div>
+          <p class="prefs-cookie-notice" data-i18n="settings.cookieNotice">Всі налаштування зберігаються в Cookies і зникнуть після їх очищення.</p>
+          <div class="prefs-data-btns">
+            <button id="prefs-export" class="btn-secondary" data-i18n="settings.export">Експорт налаштувань</button>
+            <label class="btn-secondary prefs-import-label">
+              <span data-i18n="settings.import">Імпорт налаштувань</span>
+              <input type="file" id="prefs-import-file" accept=".json" style="display:none">
+            </label>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 

@@ -317,13 +317,6 @@ class TerminalTab {
     const sep = '\x1b[90m';
     const sub = '\x1b[38;5;39m';
 
-    // Colorize shade block chars: ░▒▓█ → dark→medium→bright cyan gradient
-    const cl = s => s
-      .replace(/░/g, '\x1b[38;5;24m░')
-      .replace(/▒/g, '\x1b[38;5;31m▒')
-      .replace(/▓/g, '\x1b[38;5;39m▓')
-      .replace(/█/g, '\x1b[38;5;51m█') + r;
-
     this.term.writeln('');
     this.term.writeln('');
     this.term.writeln(`   ${sub}╻ ╻┏━╸┏┓ ┏━╸┏━┓┏┳┓${r}`);
@@ -339,134 +332,8 @@ class TerminalTab {
     this.term.writeln(`   ${d}${t('term.welcome3')}${r}`);
     this.term.writeln('');
 
-    // ── About panel ── rows 18–28 (1-indexed from terminal top) ──────────
-    const bdr  = '\x1b[38;5;244m';
-    const lbl  = '\x1b[2;37m';
-    const val  = '\x1b[97m';
-    const W    = 54;
-    const strip = s => s.replace(/\x1b\[[0-9;]*m/g, '');
-    const pad   = s => { const n = W - strip(s).length; return s + (n > 0 ? ' '.repeat(n) : ''); };
-    const B     = s => `   ${bdr}║${r}${pad(s)}${bdr}║${r}`;
-    const HR    = '══════════════════════════════════════════════════════';
-    const MID   = `   ${bdr}╠${HR}╣${r}`;
-
-    const lblAuthor  = t('about.author');
-    const lblLicense = t('about.license');
-    const lblW = Math.max(lblAuthor.length, lblLicense.length);
-
-    // Buttons: label row = terminal row 24 (fixed labels, not translated)
-    const BTNS = [
-      { label: ' GitHub ',       url: 'https://github.com/keedhost/WebCOM'       },
-      { label: ' Report a bug ', url: 'https://github.com/keedhost/WebCOM/issues'},
-    ];
-
-    // Column ranges (1-indexed): 3 indent + ║ + 2 leading spaces → col 7
-    let _c = 7;
-    const btnCols = BTNS.map(btn => {
-      const bw = btn.label.length + 2;
-      const range = { start: _c, end: _c + bw - 1 };
-      _c += bw + 3;
-      return range;
-    });
-
-    // Pseudo-3D: bright top+left border (lit), dark bottom+right border (shadow)
-    const LIT = '\x1b[97m';           // bright white — lit side (top, left)
-    const SHD = '\x1b[38;5;240m';    // dark gray    — shadow side (bottom, right)
-
-    // inv = index of "pressed" button (-1 = none)
-    const drawTop = (inv = -1) => BTNS.reduce((s, btn, i) => {
-      const c = i === inv ? SHD : LIT;   // pressed → top border becomes dark
-      return s + `${c}┌${'─'.repeat(btn.label.length)}┐${r}` +
-        (i < BTNS.length - 1 ? '   ' : '');
-    }, '  ');
-
-    const drawMid = (inv = -1) => BTNS.reduce((s, btn, i) => {
-      const cl = i === inv ? SHD : LIT;  // left  │ swaps on press
-      const cr = i === inv ? LIT : SHD;  // right │ swaps on press
-      const face = i === inv
-        ? `\x1b[7m${btn.label}\x1b[27m`  // inverted label when pressed
-        : `${val}${btn.label}${r}`;
-      return s + `${cl}│${r}${face}${cr}│${r}` +
-        (i < BTNS.length - 1 ? '   ' : '');
-    }, '  ');
-
-    const drawBot = (inv = -1) => BTNS.reduce((s, btn, i) => {
-      const c = i === inv ? LIT : SHD;   // pressed → bottom border becomes bright
-      return s + `${c}└${'─'.repeat(btn.label.length)}┘${r}` +
-        (i < BTNS.length - 1 ? '   ' : '');
-    }, '  ');
-
-    this.term.writeln(`   ${bdr}╔${HR}╗${r}`);                                                                                    // 18
-    this.term.writeln(B(`  ${lbl}${lblAuthor.padEnd(lblW)} :${r}  ${val}${t('about.authorName')}${r}`));                     // 19
-    this.term.writeln(B(`  ${lbl}${lblLicense.padEnd(lblW)} :${r}  ${val}GNU General Public License v3${r}`));               // 20
-    this.term.writeln(MID);                                                                    // 21
-    this.term.writeln(B(''));                                                                  // 22
-    this.term.writeln(B(drawTop()));                                                           // 23
-    this.term.writeln(B(drawMid()));                                                           // 24 ← labels
-    this.term.writeln(B(drawBot()));                                                           // 25
-    this.term.writeln(B(''));                                                                  // 26
-    this.term.writeln(`   ${bdr}╚${HR}╝${r}`);                                              // 27
-    this.term.writeln('');                                                                     // 28
-
-    // ── Click handler: pixel → cell → 3-row press animation ──────────────
-    const _BTN_TOP_ROW = 23;
-    const _BTN_MID_ROW = 24;
-    const _BTN_BOT_ROW = 25;
-
-    const _redraw3 = (hit) => {
-      const base = this.term.buffer.active.baseY;
-      const vT = _BTN_TOP_ROW - base;
-      const vM = _BTN_MID_ROW - base;
-      const vB = _BTN_BOT_ROW - base;
-      if (vM < 1 || vM > this.term.rows) return false;
-      this.term.write(
-        `\x1b[s` +
-        `\x1b[${vT};1H${B(drawTop(hit))}` +
-        `\x1b[${vM};1H${B(drawMid(hit))}` +
-        `\x1b[${vB};1H${B(drawBot(hit))}` +
-        `\x1b[u`
-      );
-      return true;
-    };
-
-    const _onBtnClick = (e) => {
-      if (this.connected) return;
-      const screen = this.term.element.querySelector('.xterm-screen');
-      if (!screen) return;
-      const rect  = screen.getBoundingClientRect();
-      const cellW = rect.width  / this.term.cols;
-      const cellH = rect.height / this.term.rows;
-      const col   = Math.floor((e.clientX - rect.left) / cellW) + 1;
-      const row   = Math.floor((e.clientY - rect.top)  / cellH) + 1;
-      if (row < 23 || row > 25) return;
-      const hit = btnCols.findIndex(b => col >= b.start && col <= b.end);
-      if (hit < 0) return;
-      const visible = _redraw3(hit);           // draw pressed state
-      setTimeout(() => {
-        if (visible) _redraw3(-1);             // restore normal state
-        window.open(BTNS[hit].url, '_blank', 'noopener,noreferrer');
-      }, 150);
-    };
-
-    const _onBtnMove = (e) => {
-      if (this.connected) { this.term.element.style.cursor = ''; return; }
-      const screen = this.term.element.querySelector('.xterm-screen');
-      if (!screen) return;
-      const rect  = screen.getBoundingClientRect();
-      const cellW = rect.width  / this.term.cols;
-      const cellH = rect.height / this.term.rows;
-      const col   = Math.floor((e.clientX - rect.left) / cellW) + 1;
-      const row   = Math.floor((e.clientY - rect.top)  / cellH) + 1;
-      const over  = row >= 23 && row <= 25 && btnCols.some(b => col >= b.start && col <= b.end);
-      this.term.element.style.cursor = over ? 'pointer' : '';
-    };
-
-    if (this._onBtnClick)     this.term.element.removeEventListener('click',     this._onBtnClick);
-    if (this._onBtnMove)      this.term.element.removeEventListener('mousemove', this._onBtnMove);
-    this._onBtnClick = _onBtnClick;
-    this._onBtnMove  = _onBtnMove;
-    this.term.element.addEventListener('click',     this._onBtnClick);
-    this.term.element.addEventListener('mousemove', this._onBtnMove);
+    if (this._onBtnClick) { this.term.element.removeEventListener('click',     this._onBtnClick); this._onBtnClick = null; }
+    if (this._onBtnMove)  { this.term.element.removeEventListener('mousemove', this._onBtnMove);  this.term.element.style.cursor = ''; this._onBtnMove = null; }
   }
 
   // ── Connection ────────────────────────────────────────────────────────────
@@ -730,6 +597,7 @@ class App {
     document.getElementById('btn-close-modal').addEventListener('click',  () => this._closeModal());
     document.getElementById('btn-port-cancel').addEventListener('click',  () => this._closeModal());
     document.querySelector('#modal-settings .modal-backdrop').addEventListener('click', () => this._closeModal());
+    document.getElementById('btn-about').addEventListener('click', () => this._openAbout());
     document.getElementById('btn-prefs').addEventListener('click', () => this._openPrefs());
 
     // Modal connect
@@ -1034,7 +902,44 @@ class App {
   }
 
   // ── Prefs modal ───────────────────────────────────────────────────────────
+  _openAbout() {
+    document.getElementById('modal-about').classList.remove('hidden');
+    const yr = new Date().getFullYear();
+    document.getElementById('about-years').textContent = yr > 2026 ? `2026 – ${yr}` : '2026';
+    if (this._commitDate) {
+      this._renderAboutDate(this._commitDate);
+      return;
+    }
+    if (this._aboutFetching) return;
+    this._aboutFetching = true;
+    fetch('https://api.github.com/repos/keedhost/WebCOM/commits/HEAD')
+      .then(r => r.json())
+      .then(d => {
+        document.getElementById('about-version').textContent = d.sha.slice(0, 7);
+        this._commitDate = new Date(d.commit.author.date);
+        this._renderAboutDate(this._commitDate);
+      })
+      .catch(() => {
+        document.getElementById('about-version').textContent = '—';
+        document.getElementById('about-updated').textContent = '—';
+      });
+  }
+
+  _renderAboutDate(date) {
+    const lang = this.i18n.lang || 'uk';
+    const dateStr = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+    const days = Math.floor((Date.now() - date) / 86400000);
+    const rel = new Intl.RelativeTimeFormat(lang, { numeric: 'always' }).format(-days, 'day');
+    document.getElementById('about-updated').textContent = `${dateStr}, ${rel}`;
+  }
+
+  _closeAbout() {
+    document.getElementById('modal-about').classList.add('hidden');
+  }
+
   _bindPrefsModal() {
+    document.getElementById('btn-close-about').addEventListener('click', () => this._closeAbout());
+    document.getElementById('about-backdrop').addEventListener('click',  () => this._closeAbout());
     document.getElementById('btn-close-prefs').addEventListener('click', () => this._closePrefs());
     document.getElementById('prefs-backdrop').addEventListener('click',  () => this._closePrefs());
 

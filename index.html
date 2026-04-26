@@ -76,6 +76,13 @@
           </div>
         </div>
         <div class="toolbar-sep"></div>
+        <button id="btn-about" class="btn-icon" title="Про WebCOM" aria-label="Про WebCOM">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="8" stroke-width="2.5"/>
+            <line x1="12" y1="12" x2="12" y2="17"/>
+          </svg>
+        </button>
         <button id="btn-prefs" class="btn-icon" title="Налаштування" aria-label="Налаштування">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="3"/>
@@ -370,6 +377,67 @@
           </div>
         </div>
 
+      </div>
+    </div>
+  </div>
+
+  <!-- About modal -->
+  <div id="modal-about" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="about-title">
+    <div class="modal-backdrop" id="about-backdrop"></div>
+    <div class="modal-box about-box">
+      <div class="modal-header">
+        <h2 id="about-title" data-i18n="about.title">Про WebCOM</h2>
+        <button id="btn-close-about" class="btn-icon btn-close-modal" aria-label="Закрити">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <line x1="1" y1="1" x2="10" y2="10"/><line x1="10" y1="1" x2="1" y2="10"/>
+          </svg>
+        </button>
+      </div>
+      <div class="about-body">
+        <div class="about-logo-row">
+          <svg class="about-logo-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="40" height="40" rx="9" fill="currentColor" opacity=".12"/>
+            <rect x="6" y="10" width="28" height="20" rx="2" stroke="currentColor" stroke-width="2"/>
+            <polyline points="11,17 16,20 11,23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="18" y1="23" x2="28" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span class="about-logo-name">WebCOM</span>
+        </div>
+        <p class="about-desc" data-i18n="about.desc">Браузерний термінал для роботи з серійними портами через Web Serial API.</p>
+        <table class="about-table">
+          <tr>
+            <td class="about-label" data-i18n="about.version">Версія</td>
+            <td><code id="about-version" class="about-version">…</code></td>
+          </tr>
+          <tr>
+            <td class="about-label" data-i18n="about.updated">Остання зміна</td>
+            <td id="about-updated">…</td>
+          </tr>
+          <tr>
+            <td class="about-label" data-i18n="about.author">Автор</td>
+            <td><a href="https://www.linkedin.com/in/andriy-kondratyev/" target="_blank" rel="noopener" class="about-link" data-i18n="about.authorName">Андрій Кондратьєв</a></td>
+          </tr>
+          <tr>
+            <td class="about-label" data-i18n="about.app">Додаток</td>
+            <td><a href="https://keedhost.github.io/WebCOM/" target="_blank" rel="noopener" class="about-link">keedhost.github.io/WebCOM</a></td>
+          </tr>
+          <tr>
+            <td class="about-label" data-i18n="about.source">Вихідний код</td>
+            <td><a href="https://github.com/keedhost/WebCOM" target="_blank" rel="noopener" class="about-link">github.com/keedhost/WebCOM</a></td>
+          </tr>
+          <tr>
+            <td class="about-label" data-i18n="about.bugs">Зарепортити багу</td>
+            <td><a href="https://github.com/keedhost/WebCOM/issues" target="_blank" rel="noopener" class="about-link">github.com/keedhost/WebCOM/issues</a></td>
+          </tr>
+          <tr>
+            <td class="about-label" data-i18n="about.license">Ліцензія</td>
+            <td><a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener" class="about-link">GNU GPL v3</a></td>
+          </tr>
+          <tr>
+            <td class="about-label" data-i18n="about.years">Роки</td>
+            <td id="about-years">2026</td>
+          </tr>
+        </table>
       </div>
     </div>
   </div>

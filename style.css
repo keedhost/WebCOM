@@ -889,6 +889,70 @@ body {
   font-size: 13.5px;
 }
 
+/* ─── About modal ─── */
+.about-box {
+  width: 380px;
+}
+.about-body {
+  padding: 20px 20px 24px;
+}
+.about-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.about-logo-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--text-accent, #4fc3f7);
+  flex-shrink: 0;
+}
+.about-logo-name {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: var(--text-primary);
+}
+.about-desc {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: -8px 0 18px;
+}
+.about-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.about-table tr + tr td {
+  border-top: 1px solid var(--border-subtle);
+}
+.about-table td {
+  padding: 8px 4px;
+  font-size: 12.5px;
+  vertical-align: middle;
+}
+.about-label {
+  color: var(--text-muted);
+  white-space: nowrap;
+  padding-right: 16px !important;
+  width: 1%;
+}
+.about-link {
+  color: var(--text-accent, #4fc3f7);
+  text-decoration: none;
+}
+.about-link:hover { text-decoration: underline; }
+.about-version {
+  font-family: monospace;
+  font-size: 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 1px 6px;
+  color: var(--text-secondary);
+}
+
 /* ─── Browser not supported overlay ─── */
 .overlay-message {
   position: fixed;

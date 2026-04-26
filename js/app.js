@@ -265,7 +265,6 @@ class TerminalTab {
       }
     });
 
-    this._showWelcome();
     this.fit();
   }
 
@@ -709,7 +708,8 @@ class App {
 
     this.tabs.set(id, tab);
     this._updateContainerCount();
-    this.setActive(id);
+    this.setActive(id);   // calls fit() → terminal gets real dimensions
+    tab._showWelcome();   // called after DOM insertion + fit
     return tab;
   }
 

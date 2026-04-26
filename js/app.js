@@ -709,7 +709,7 @@ class App {
     this.tabs.set(id, tab);
     this._updateContainerCount();
     this.setActive(id);   // calls fit() → terminal gets real dimensions
-    tab._showWelcome();   // called after DOM insertion + fit
+    requestAnimationFrame(() => tab._showWelcome());
     return tab;
   }
 

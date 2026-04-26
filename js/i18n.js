@@ -43,6 +43,12 @@ const TRANSLATIONS = {
     'cmd.placeholder':        'Команда… (help — список)',
     'cmd.runBtn':             'Виконати',
     'cmd.helpHeader':         'Команди',
+    'about.author':           'Автор',
+    'about.license':          'Ліцензія',
+    'about.authorName':       'Андрій Кондратьєв',
+    'about.btn.home':         'Домашня',
+    'about.btn.src':          'Джерело',
+    'about.btn.bugs':         'Помилки',
   },
 
   en: {
@@ -89,6 +95,12 @@ const TRANSLATIONS = {
     'cmd.placeholder':        'Command… (help — list)',
     'cmd.runBtn':             'Run',
     'cmd.helpHeader':         'Commands',
+    'about.author':           'Author',
+    'about.license':          'License',
+    'about.authorName':       'Andrii Kondratiev',
+    'about.btn.home':         'Homepage',
+    'about.btn.src':          'Source',
+    'about.btn.bugs':         'Bugs',
   },
 
   fr: {
@@ -135,6 +147,12 @@ const TRANSLATIONS = {
     'cmd.placeholder':        'Commande… (help — liste)',
     'cmd.runBtn':             'Exécuter',
     'cmd.helpHeader':         'Commandes',
+    'about.author':           'Auteur',
+    'about.license':          'Licence',
+    'about.authorName':       'Andrii Kondratiev',
+    'about.btn.home':         'Site web',
+    'about.btn.src':          'Sources',
+    'about.btn.bugs':         'Bogues',
   },
 
   de: {
@@ -181,6 +199,12 @@ const TRANSLATIONS = {
     'cmd.placeholder':        'Befehl… (help — Liste)',
     'cmd.runBtn':             'Ausführen',
     'cmd.helpHeader':         'Befehle',
+    'about.author':           'Autor',
+    'about.license':          'Lizenz',
+    'about.authorName':       'Andrii Kondratiev',
+    'about.btn.home':         'Startseite',
+    'about.btn.src':          'Quellcode',
+    'about.btn.bugs':         'Fehler',
   },
 
   pl: {
@@ -227,6 +251,12 @@ const TRANSLATIONS = {
     'cmd.placeholder':        'Polecenie… (help — lista)',
     'cmd.runBtn':             'Wykonaj',
     'cmd.helpHeader':         'Polecenia',
+    'about.author':           'Autor',
+    'about.license':          'Licencja',
+    'about.authorName':       'Andrii Kondratiev',
+    'about.btn.home':         'Strona',
+    'about.btn.src':          'Kod',
+    'about.btn.bugs':         'Błędy',
   },
 
   cs: {
@@ -273,6 +303,12 @@ const TRANSLATIONS = {
     'cmd.placeholder':        'Příkaz… (help — seznam)',
     'cmd.runBtn':             'Spustit',
     'cmd.helpHeader':         'Příkazy',
+    'about.author':           'Autor',
+    'about.license':          'Licence',
+    'about.authorName':       'Andrii Kondratiev',
+    'about.btn.home':         'Web',
+    'about.btn.src':          'Zdroj',
+    'about.btn.bugs':         'Chyby',
   },
 
   es: {
@@ -319,6 +355,12 @@ const TRANSLATIONS = {
     'cmd.placeholder':        'Comando… (help — lista)',
     'cmd.runBtn':             'Ejecutar',
     'cmd.helpHeader':         'Comandos',
+    'about.author':           'Autor',
+    'about.license':          'Licencia',
+    'about.authorName':       'Andrii Kondratiev',
+    'about.btn.home':         'Web',
+    'about.btn.src':          'Código',
+    'about.btn.bugs':         'Errores',
   },
 
   pt: {
@@ -365,6 +407,12 @@ const TRANSLATIONS = {
     'cmd.placeholder':        'Comando… (help — lista)',
     'cmd.runBtn':             'Executar',
     'cmd.helpHeader':         'Comandos',
+    'about.author':           'Autor',
+    'about.license':          'Licença',
+    'about.authorName':       'Andrii Kondratiev',
+    'about.btn.home':         'Web',
+    'about.btn.src':          'Código',
+    'about.btn.bugs':         'Erros',
   },
 };
 

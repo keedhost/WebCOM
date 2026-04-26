@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Background -->
+  <rect width="64" height="64" rx="9" fill="#161b22"/>
+  <rect width="64" height="64" rx="9" fill="none" stroke="#30363d" stroke-width="1.5"/>
+
+  <!-- > prompt chevron -->
+  <polyline points="10,18 28,32 10,46"
+            fill="none" stroke="#79c0ff" stroke-width="5"
+            stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- _ cursor -->
+  <line x1="34" y1="46" x2="55" y2="46"
+        stroke="#79c0ff" stroke-width="4" stroke-linecap="round"/>
+</svg>

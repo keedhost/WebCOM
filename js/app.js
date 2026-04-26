@@ -94,6 +94,47 @@ function parseEscInput(str) {
     .replace(/\\\\/g, '\\');
 }
 
+// ─── Mosaic layout initial sizes (cols/rows fractions, sum = 1) ──────────────
+const LAYOUT_INIT_SIZES = {
+  h2:   { cols: [.5, .5],              rows: [1] },
+  v2:   { cols: [1],                    rows: [.5, .5] },
+  h3:   { cols: [1/3, 1/3, 1/3],       rows: [1] },
+  v3:   { cols: [1],                    rows: [1/3, 1/3, 1/3] },
+  '1v2':{ cols: [.5, .5],              rows: [.5, .5] },
+  '1h2':{ cols: [.5, .5],              rows: [.5, .5] },
+  '2x2':{ cols: [.5, .5],              rows: [.5, .5] },
+  h4:   { cols: [.25, .25, .25, .25],  rows: [1] },
+  v4:   { cols: [1],                    rows: [.25, .25, .25, .25] },
+};
+
+// ─── Mosaic layout definitions ───────────────────────────────────────────────
+const MOSAIC_LAYOUTS = {
+  2: [
+    { id: 'h2',  label: '1 × 2',
+      svg: `<svg viewBox="0 0 60 40"><rect x="1" y="1" width="27" height="38" rx="2" fill="currentColor"/><rect x="32" y="1" width="27" height="38" rx="2" fill="currentColor"/></svg>` },
+    { id: 'v2',  label: '2 × 1',
+      svg: `<svg viewBox="0 0 60 40"><rect x="1" y="1" width="58" height="17" rx="2" fill="currentColor"/><rect x="1" y="22" width="58" height="17" rx="2" fill="currentColor"/></svg>` },
+  ],
+  3: [
+    { id: 'h3',  label: '1 × 3',
+      svg: `<svg viewBox="0 0 60 40"><rect x="1" y="1" width="17" height="38" rx="2" fill="currentColor"/><rect x="22" y="1" width="17" height="38" rx="2" fill="currentColor"/><rect x="43" y="1" width="16" height="38" rx="2" fill="currentColor"/></svg>` },
+    { id: 'v3',  label: '3 × 1',
+      svg: `<svg viewBox="0 0 60 40"><rect x="1" y="1" width="58" height="10" rx="2" fill="currentColor"/><rect x="1" y="15" width="58" height="10" rx="2" fill="currentColor"/><rect x="1" y="29" width="58" height="10" rx="2" fill="currentColor"/></svg>` },
+    { id: '1v2', label: '▌ + 2',
+      svg: `<svg viewBox="0 0 60 40"><rect x="1" y="1" width="27" height="38" rx="2" fill="currentColor"/><rect x="32" y="1" width="27" height="17" rx="2" fill="currentColor"/><rect x="32" y="22" width="27" height="17" rx="2" fill="currentColor"/></svg>` },
+    { id: '1h2', label: '▀ + 2',
+      svg: `<svg viewBox="0 0 60 40"><rect x="1" y="1" width="58" height="17" rx="2" fill="currentColor"/><rect x="1" y="22" width="27" height="17" rx="2" fill="currentColor"/><rect x="32" y="22" width="27" height="17" rx="2" fill="currentColor"/></svg>` },
+  ],
+  4: [
+    { id: '2x2', label: '2 × 2',
+      svg: `<svg viewBox="0 0 60 40"><rect x="1" y="1" width="27" height="17" rx="2" fill="currentColor"/><rect x="32" y="1" width="27" height="17" rx="2" fill="currentColor"/><rect x="1" y="22" width="27" height="17" rx="2" fill="currentColor"/><rect x="32" y="22" width="27" height="17" rx="2" fill="currentColor"/></svg>` },
+    { id: 'h4',  label: '1 × 4',
+      svg: `<svg viewBox="0 0 60 40"><rect x="1" y="1" width="12" height="38" rx="2" fill="currentColor"/><rect x="16" y="1" width="12" height="38" rx="2" fill="currentColor"/><rect x="31" y="1" width="12" height="38" rx="2" fill="currentColor"/><rect x="46" y="1" width="13" height="38" rx="2" fill="currentColor"/></svg>` },
+    { id: 'v4',  label: '4 × 1',
+      svg: `<svg viewBox="0 0 60 40"><rect x="1" y="1" width="58" height="7" rx="2" fill="currentColor"/><rect x="1" y="11" width="58" height="7" rx="2" fill="currentColor"/><rect x="1" y="21" width="58" height="7" rx="2" fill="currentColor"/><rect x="1" y="31" width="58" height="7" rx="2" fill="currentColor"/></svg>` },
+  ],
+};
+
 // ─── TerminalTab ────────────────────────────────────────────────────────────
 class TerminalTab {
   constructor(id, app) {
@@ -739,18 +780,179 @@ class App {
 
   // ── Mosaic ────────────────────────────────────────────────────────────────
   _toggleMosaic() {
-    this.mosaic = !this.mosaic;
+    this._showMosaicPicker();
+  }
+
+  _deactivateMosaic() {
+    this.mosaic = false;
     const container = document.getElementById('terminals-container');
+    container.classList.remove('mosaic');
+    container.removeAttribute('data-layout');
+    container.style.gridTemplateColumns = '';
+    container.style.gridTemplateRows    = '';
+    document.getElementById('mosaic-resize-overlay')?.remove();
     const btn = document.getElementById('btn-mosaic');
-    container.classList.toggle('mosaic', this.mosaic);
-    btn.classList.toggle('active', this.mosaic);
-    btn.setAttribute('aria-pressed', this.mosaic);
+    btn.classList.remove('active');
+    btn.setAttribute('aria-pressed', 'false');
+    this._closeMosaicPicker();
     this._fitAll();
   }
 
-  _updateContainerCount() {
+  _showMosaicPicker() {
     const n = this.tabs.size;
-    document.getElementById('terminals-container').dataset.count = n;
+    const layouts = MOSAIC_LAYOUTS[Math.min(n, 4)] ?? [];
+    if (!layouts.length) return;
+
+    let picker = document.getElementById('mosaic-picker');
+    if (!picker) {
+      picker = document.createElement('div');
+      picker.id = 'mosaic-picker';
+      picker.className = 'mosaic-picker hidden';
+      document.body.appendChild(picker);
+      document.addEventListener('click', (e) => {
+        const btn = document.getElementById('btn-mosaic');
+        if (!picker.contains(e.target) && !btn.contains(e.target)) {
+          this._closeMosaicPicker();
+        }
+      });
+    }
+
+    const activeLay = document.getElementById('terminals-container').dataset.layout ?? '';
+    const resetSvg = `<svg viewBox="0 0 60 40"><rect x="1" y="1" width="58" height="38" rx="2" fill="currentColor"/></svg>`;
+    picker.innerHTML = `<div class="mosaic-picker-title">Layout</div>
+      <div class="mosaic-picker-cards">${
+        layouts.map(l => `<button class="mosaic-card${activeLay === l.id ? ' active' : ''}" data-layout="${l.id}" title="${l.label}">
+          ${l.svg}
+          <span class="mosaic-card-label">${l.label}</span>
+        </button>`).join('')
+      }</div>
+      <div class="mosaic-picker-sep"></div>
+      <button class="mosaic-card mosaic-card-reset" title="Default (single tab)">
+        ${resetSvg}
+        <span class="mosaic-card-label">Default</span>
+      </button>`;
+
+    picker.querySelectorAll('.mosaic-card:not(.mosaic-card-reset)').forEach(card => {
+      card.addEventListener('click', () => this._applyLayout(card.dataset.layout));
+    });
+    picker.querySelector('.mosaic-card-reset').addEventListener('click', () => this._deactivateMosaic());
+
+    const btn = document.getElementById('btn-mosaic');
+    const rect = btn.getBoundingClientRect();
+    picker.style.top   = (rect.bottom + 6) + 'px';
+    picker.style.right = (window.innerWidth - rect.right + rect.width / 2 - 18) + 'px';
+
+    picker.classList.remove('hidden');
+  }
+
+  _closeMosaicPicker() {
+    document.getElementById('mosaic-picker')?.classList.add('hidden');
+  }
+
+  _applyLayout(id) {
+    const container = document.getElementById('terminals-container');
+    this.mosaic = true;
+    container.classList.add('mosaic');
+    container.dataset.layout = id;
+    const btn = document.getElementById('btn-mosaic');
+    btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
+    this._closeMosaicPicker();
+    this._buildResizeHandles(id);
+    this._fitAll();
+  }
+
+  // ── Resize handles ────────────────────────────────────────────────────────
+
+  _buildResizeHandles(layoutId) {
+    const container = document.getElementById('terminals-container');
+    document.getElementById('mosaic-resize-overlay')?.remove();
+    container.style.gridTemplateColumns = '';
+    container.style.gridTemplateRows    = '';
+
+    const def = LAYOUT_INIT_SIZES[layoutId];
+    if (!def) return;
+
+    this._colSizes = [...def.cols];
+    this._rowSizes = [...def.rows];
+
+    const overlay = document.createElement('div');
+    overlay.id = 'mosaic-resize-overlay';
+    overlay.className = 'mosaic-resize-overlay';
+    container.appendChild(overlay);
+
+    const addHandle = (type, idx) => {
+      const h = document.createElement('div');
+      h.className = `resize-handle resize-handle-${type}`;
+      h.dataset.type = type;
+      h.dataset.idx  = String(idx);
+      this._positionHandle(h);
+      h.addEventListener('mousedown', e => { e.preventDefault(); this._startResize(e, type, idx); });
+      overlay.appendChild(h);
+    };
+
+    for (let i = 0; i < this._colSizes.length - 1; i++) addHandle('col', i);
+    for (let i = 0; i < this._rowSizes.length - 1; i++) addHandle('row', i);
+
+    this._applyGridSizes(container);
+  }
+
+  _applyGridSizes(container) {
+    const fr = arr => arr.map(v => `${(v * 100).toFixed(3)}fr`).join(' ');
+    container.style.gridTemplateColumns = fr(this._colSizes);
+    container.style.gridTemplateRows    = fr(this._rowSizes);
+  }
+
+  _positionHandle(h) {
+    const type = h.dataset.type;
+    const idx  = parseInt(h.dataset.idx);
+    const sizes = type === 'col' ? this._colSizes : this._rowSizes;
+    const pct = sizes.slice(0, idx + 1).reduce((a, b) => a + b, 0) * 100;
+    if (type === 'col') h.style.left = pct + '%';
+    else                h.style.top  = pct + '%';
+  }
+
+  _startResize(e, type, idx) {
+    const container = document.getElementById('terminals-container');
+    const rect = container.getBoundingClientRect();
+    const sizes = type === 'col' ? this._colSizes : this._rowSizes;
+    const before = sizes.slice(0, idx).reduce((a, b) => a + b, 0);
+    const after  = sizes.slice(idx + 2).reduce((a, b) => a + b, 0);
+    const avail  = 1 - before - after;
+    const MIN    = 0.08;
+
+    document.querySelectorAll(`.resize-handle-${type}[data-idx="${idx}"]`)
+      .forEach(h => h.classList.add('dragging'));
+
+    let rafId = null;
+    const onMove = ev => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        const total = type === 'col' ? rect.width : rect.height;
+        const pos   = (type === 'col' ? ev.clientX - rect.left : ev.clientY - rect.top);
+        let newA = pos / total - before;
+        newA = Math.max(MIN, Math.min(avail - MIN, newA));
+        sizes[idx]     = newA;
+        sizes[idx + 1] = avail - newA;
+        this._applyGridSizes(container);
+        document.querySelectorAll('.resize-handle').forEach(h => this._positionHandle(h));
+        this._fitAll();
+      });
+    };
+
+    const onUp = () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup',   onUp);
+      document.querySelectorAll('.resize-handle').forEach(h => h.classList.remove('dragging'));
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup',   onUp);
+  }
+
+  _updateContainerCount() {
     this._fitAll();
   }
 

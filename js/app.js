@@ -565,6 +565,7 @@ class App {
     this._bindKeyboard();
     this.cmdPanel = new CmdPanel(this);
     this._showLinuxNotice();
+    this._initPWA();
     window.addEventListener('resize', () => this._fitAll());
   }
 
@@ -1181,6 +1182,35 @@ class App {
       localStorage.setItem(STORAGE_KEY, '1');
       notice.classList.add('hidden');
       this._fitAll();
+    });
+  }
+
+  _initPWA() {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+
+    const btn = document.getElementById('btn-pwa-install');
+
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      this._pwaPrompt = e;
+      btn.classList.remove('hidden');
+    });
+
+    btn.addEventListener('click', async () => {
+      if (!this._pwaPrompt) return;
+      this._pwaPrompt.prompt();
+      const { outcome } = await this._pwaPrompt.userChoice;
+      if (outcome === 'accepted') {
+        this._pwaPrompt = null;
+        btn.classList.add('hidden');
+      }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      this._pwaPrompt = null;
+      btn.classList.add('hidden');
     });
   }
 

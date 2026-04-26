@@ -237,6 +237,10 @@ body {
 }
 .btn-icon:hover  { background: var(--bg-hover); color: var(--text-primary); }
 .btn-icon.active { background: var(--bg-active); color: var(--accent); }
+.btn-icon.hidden { display: none; }
+
+.btn-pwa-install { color: var(--accent); }
+.btn-pwa-install:hover { color: var(--text-primary); }
 
 #btn-add-tab {
   margin: auto 4px;

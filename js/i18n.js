@@ -69,6 +69,7 @@ const TRANSLATIONS = {
     'about.years':                 'Роки',
     'about.updated':               'Остання зміна',
     'about.authorName':            'Андрій Кондратьєв',
+    'pwa.install':                 'Встановити як додаток',
   },
 
   en: {
@@ -140,6 +141,7 @@ const TRANSLATIONS = {
     'about.license':               'License',
     'about.years':                 'Years',
     'about.updated':               'Last modified',
+    'pwa.install':                 'Install as app',
     'about.authorName':            'Andrii Kondratiev',
   },
 
@@ -212,6 +214,7 @@ const TRANSLATIONS = {
     'about.license':               'Licence',
     'about.years':                 'Années',
     'about.updated':               'Dernière modification',
+    'pwa.install':                 'Installer comme application',
     'about.authorName':            'Andrii Kondratiev',
   },
 
@@ -284,6 +287,7 @@ const TRANSLATIONS = {
     'about.license':               'Lizenz',
     'about.years':                 'Jahre',
     'about.updated':               'Letzte Änderung',
+    'pwa.install':                 'Als App installieren',
     'about.authorName':            'Andrii Kondratiev',
   },
 
@@ -356,6 +360,7 @@ const TRANSLATIONS = {
     'about.license':               'Licencja',
     'about.years':                 'Lata',
     'about.updated':               'Ostatnia zmiana',
+    'pwa.install':                 'Zainstaluj jako aplikację',
     'about.authorName':            'Andrii Kondratiev',
   },
 
@@ -428,6 +433,7 @@ const TRANSLATIONS = {
     'about.license':               'Licence',
     'about.years':                 'Roky',
     'about.updated':               'Poslední změna',
+    'pwa.install':                 'Nainstalovat jako aplikaci',
     'about.authorName':            'Andrii Kondratiev',
   },
 
@@ -500,6 +506,7 @@ const TRANSLATIONS = {
     'about.license':               'Licencia',
     'about.years':                 'Años',
     'about.updated':               'Última modificación',
+    'pwa.install':                 'Instalar como aplicación',
     'about.authorName':            'Andrii Kondratiev',
   },
 
@@ -572,6 +579,7 @@ const TRANSLATIONS = {
     'about.license':               'Licença',
     'about.years':                 'Anos',
     'about.updated':               'Última modificação',
+    'pwa.install':                 'Instalar como aplicativo',
     'about.authorName':            'Andrii Kondratiev',
   },
 };
